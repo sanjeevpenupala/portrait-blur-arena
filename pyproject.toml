@@ -1,15 +1,20 @@
 [project]
-name = "sam-3-human-segmentation"
+name = "sam-portrait-background-blur"
 version = "0.1.0"
-description = "Add your description here"
+description = "Portrait background blur comparing SAM 2.1 and SAM3 segmentation models"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "clip",
     "huggingface-hub>=1.4.1",
     "opencv-python-headless>=4.13.0.92",
     "pillow>=12.1.1",
     "streamlit>=1.54.0",
+    "timm>=1.0.24",
     "torch>=2.10.0",
     "torchvision>=0.25.0",
     "ultralytics>=8.4.14",
 ]
+
+[tool.uv.sources]
+clip = { git = "https://github.com/ultralytics/CLIP.git" }
