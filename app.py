@@ -63,10 +63,12 @@ def run_segmentation(predictor, image: Image.Image) -> Image.Image | None:
 st.set_page_config(page_title="Human Segmentation", layout="wide")
 st.title("Human Segmentation with SAM3")
 
-with st.spinner("Loading SAM3 model..."):
-    predictor = load_model()
-
-st.success("Model loaded.")
+try:
+    with st.spinner("Loading SAM3 model..."):
+        predictor = load_model()
+except Exception as e:
+    st.error(f"Failed to load SAM3 model: {e}")
+    st.stop()
 
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
