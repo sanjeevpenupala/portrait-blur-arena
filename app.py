@@ -114,30 +114,6 @@ def blur_background(
     return result
 
 
-def cut_paste_blur(original: np.ndarray, mask: np.ndarray, blur_strength: int = 51) -> np.ndarray:
-    """Cut person with raw mask, inpaint+blur background, paste person back."""
-    h, w = original.shape[:2]
-
-    if mask.shape != (h, w):
-        mask = cv2.resize(mask, (w, h), interpolation=cv2.INTER_NEAREST)
-
-    binary = (mask > 0.5).astype(np.uint8)
-
-    # Inpaint the subject region, then blur the clean background
-    inpaint_mask = cv2.dilate(binary * 255, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15)))
-    inpainted = cv2.inpaint(original, inpaint_mask, inpaintRadius=5, flags=cv2.INPAINT_TELEA)
-
-    blurred = inpainted
-    for _ in range(3):
-        blurred = cv2.GaussianBlur(blurred, (blur_strength, blur_strength), sigmaX=0)
-
-    # Paste sharp subject on top of blurred background
-    binary_3ch = binary[:, :, np.newaxis]
-    result = (original * binary_3ch + blurred * (1 - binary_3ch)).astype(np.uint8)
-
-    return result
-
-
 @st.cache_resource
 def load_birefnet(device_name: str, repo_id: str = "ZhengPeng7/BiRefNet-portrait", use_float: bool = False):
     """Download and initialize a BiRefNet-family model."""
