@@ -1,5 +1,8 @@
+import io
 import tempfile
 import time
+import zipfile
+from pathlib import Path
 from unittest.mock import patch
 
 import cv2
@@ -324,6 +327,22 @@ def run_inference(spec, model, image, device):
     if runner == "ben2":
         return run_ben2_segmentation(model, image)
     raise ValueError(f"Unknown runner: {runner}")
+
+
+def deduplicate_names(files):
+    """Build ordered dict of {display_name: UploadedFile} with collision suffixes."""
+    seen = {}
+    result = {}
+    for f in files:
+        stem = Path(f.name).stem
+        if stem in seen:
+            seen[stem] += 1
+            name = f"{stem}_{seen[stem]}"
+        else:
+            seen[stem] = 1
+            name = stem
+        result[name] = f
+    return result
 
 
 MODEL_REGISTRY = [
