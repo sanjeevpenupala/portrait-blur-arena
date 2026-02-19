@@ -424,7 +424,7 @@ st.sidebar.caption(f"Active: **{device_name}**")
 st.sidebar.markdown("**Models to compare**")
 active_specs = [
     spec for spec in MODEL_REGISTRY
-    if st.sidebar.checkbox(spec["label"], value=True, key=f"model_{spec['key']}")
+    if st.sidebar.checkbox(spec["label"], value=False, key=f"model_{spec['key']}")
 ]
 
 if not active_specs:
