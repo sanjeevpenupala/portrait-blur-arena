@@ -420,6 +420,15 @@ for name, f in named_files.items():
     pil = Image.open(f).convert("RGB")
     images[name] = {"pil": pil, "np": np.array(pil)}
 
+# Detect upload change and clear stale results
+upload_key = tuple(sorted((n, f.size) for n, f in named_files.items()))
+if upload_key != st.session_state.get("_upload_key"):
+    st.session_state.pop("results", None)
+    st.session_state.pop("ran", None)
+    st.session_state.pop("_zip_data", None)
+    st.session_state.pop("_zip_blur", None)
+    st.session_state["_upload_key"] = upload_key
+
 # Thumbnail preview
 thumb_cols = st.columns(min(len(images), 6))
 for i, (name, img_data) in enumerate(images.items()):
@@ -483,6 +492,8 @@ else:
     st.session_state["images"] = images
     st.session_state["active_specs"] = active_specs
     st.session_state["ran"] = True
+    st.session_state.pop("_zip_data", None)
+    st.session_state.pop("_zip_blur", None)
 
 # --- Render results from session state ---
 if not st.session_state.get("ran"):
@@ -544,9 +555,18 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Cache ZIP — invalidate when blur changes or new results are generated
+_zip_stale = (
+    st.session_state.get("_zip_blur") != blur_strength
+    or "_zip_data" not in st.session_state
+)
+if _zip_stale:
+    st.session_state["_zip_data"] = build_zip(blur_strength)
+    st.session_state["_zip_blur"] = blur_strength
+
 st.download_button(
     label="Download All Results (ZIP)",
-    data=build_zip(blur_strength),
+    data=st.session_state["_zip_data"],
     file_name="portrait_blur_results.zip",
     mime="application/zip",
     key="download_zip",
